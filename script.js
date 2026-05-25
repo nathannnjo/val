@@ -107,16 +107,30 @@ function renderCalendar() {
   }
 }
 
+function formatTimeLabel(timeString) {
+  if (!timeString) {
+    return '';
+  }
+
+  const [rawHour, rawMinute] = timeString.split(':');
+  const hour = parseInt(rawHour, 10);
+  const minute = rawMinute || '00';
+  const period = hour >= 12 ? 'pm' : 'am';
+  const normalizedHour = hour % 12 === 0 ? 12 : hour % 12;
+
+  return minute === '00' ? `${normalizedHour}${period}` : `${normalizedHour}:${minute}${period}`;
+}
+
 function getEventTimeLabel(event) {
   if (event.type === 'busy') {
     if (event.timeStart || event.timeEnd) {
-      return `${event.timeStart || 'Start'} — ${event.timeEnd || 'End'}`;
+      return `${event.timeStart ? formatTimeLabel(event.timeStart) : 'Start'} — ${event.timeEnd ? formatTimeLabel(event.timeEnd) : 'End'}`;
     }
     return 'Busy all day';
   }
 
   if (event.timeStart) {
-    return event.timeEnd ? `${event.timeStart} — ${event.timeEnd}` : `${event.timeStart}`;
+    return event.timeEnd ? `${formatTimeLabel(event.timeStart)} — ${formatTimeLabel(event.timeEnd)}` : `${formatTimeLabel(event.timeStart)}`;
   }
 
   return 'All day';
