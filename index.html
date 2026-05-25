@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Friends Calendar</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div>
+        <h1>Friends Calendar</h1>
+        <p>Keep track of your schedule together. Data is saved automatically in your browser.</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="calendar-panel">
+        <div class="calendar-header">
+          <button id="prevMonthBtn" aria-label="Previous month">←</button>
+          <div>
+            <p id="currentMonthLabel"></p>
+            <span id="selectedDateLabel"></span>
+          </div>
+          <button id="nextMonthBtn" aria-label="Next month">→</button>
+        </div>
+
+        <div class="weekday-row">
+          <span>Sun</span>
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+        </div>
+
+        <div id="calendarGrid" class="calendar-grid"></div>
+      </section>
+
+      <aside class="event-panel">
+        <div class="event-panel-header">
+          <h2>Events</h2>
+          <p id="eventDateHeading"></p>
+        </div>
+
+        <div id="eventList" class="event-list"></div>
+
+        <form id="eventForm" class="event-form">
+          <h3>Add / Update Event</h3>
+          <label>
+            Date
+            <input type="date" id="eventDate" required />
+          </label>
+          <label>
+            Time
+            <input type="time" id="eventTime" />
+          </label>
+          <label>
+            Title
+            <input type="text" id="eventTitle" placeholder="What are you doing?" required />
+          </label>
+          <label>
+            Notes
+            <textarea id="eventNotes" placeholder="Optional details"></textarea>
+          </label>
+          <div class="form-actions">
+            <button type="submit">Save event</button>
+            <button type="button" id="clearFormBtn">Clear</button>
+          </div>
+        </form>
+      </aside>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

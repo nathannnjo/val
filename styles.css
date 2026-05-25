@@ -1,0 +1,272 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --border: #d9e1ec;
+  --primary: #2754eb;
+  --primary-strong: #1737b7;
+  --text: #1f2937;
+  --muted: #64748b;
+  --accent: #10b981;
+  --danger: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: radial-gradient(circle at top, #eef4ff, transparent 45%), var(--bg);
+  color: var(--text);
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+header {
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+header h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+}
+
+header p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+main {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1.75fr) minmax(320px, 1fr);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.calendar-panel,
+.event-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 24px;
+  min-height: 520px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.calendar-header button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 12px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.calendar-header button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+#currentMonthLabel {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+#selectedDateLabel {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.weekday-row,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.weekday-row span {
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.calendar-grid {
+  gap: 10px;
+}
+
+.day-cell {
+  min-height: 100px;
+  padding: 12px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.day-cell:hover {
+  background: #eef4ff;
+}
+
+.day-cell.selected {
+  background: #eff6ff;
+  border-color: var(--primary);
+}
+
+.day-cell .date-number {
+  font-weight: 700;
+}
+
+.day-cell .event-count {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.85rem;
+}
+
+.event-panel-header {
+  margin-bottom: 18px;
+}
+
+.event-panel-header h2 {
+  margin: 0 0 4px;
+}
+
+.event-panel-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.event-list {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.event-card {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.event-card strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+.event-card time {
+  color: var(--muted);
+  display: block;
+  margin-bottom: 10px;
+}
+
+.event-card p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.event-card button {
+  margin-top: 12px;
+  border: none;
+  background: var(--danger);
+  color: white;
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.event-form {
+  display: grid;
+  gap: 14px;
+}
+
+.event-form label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.event-form input,
+.event-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  font: inherit;
+}
+
+.event-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.form-actions button {
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.form-actions button[type="submit"] {
+  background: var(--primary);
+  color: white;
+}
+
+.form-actions button#clearFormBtn {
+  background: #f8fafc;
+  color: var(--text);
+}
+
+@media (max-width: 960px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}
