@@ -148,16 +148,25 @@ main {
   font-weight: 700;
 }
 
-.day-cell .event-count {
+.day-cell .event-count,
+.day-cell .busy-count {
   margin-top: 12px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
   border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.day-cell .event-count {
   background: #e0f2fe;
   color: #0369a1;
-  font-size: 0.85rem;
+}
+
+.day-cell .busy-count {
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .event-panel-header {

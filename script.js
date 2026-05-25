@@ -46,6 +46,14 @@ function getDayEvents(dateString) {
   return events[dateString] || [];
 }
 
+function getDayCounts(dateString) {
+  const dayEvents = getDayEvents(dateString);
+  return {
+    events: dayEvents.filter((item) => item.type === 'event').length,
+    busy: dayEvents.filter((item) => item.type === 'busy').length,
+  };
+}
+
 function renderCalendar() {
   calendarGrid.innerHTML = '';
   currentMonthLabel.textContent = formatMonthLabel(currentView.year, currentView.month);
@@ -66,6 +74,7 @@ function renderCalendar() {
   for (let day = 1; day <= daysInMonth; day += 1) {
     const date = new Date(currentView.year, currentView.month, day);
     const dateString = formatDateString(date);
+    const counts = getDayCounts(dateString);
     const dayCell = document.createElement('button');
     dayCell.type = 'button';
     dayCell.className = 'day-cell';
@@ -73,9 +82,17 @@ function renderCalendar() {
       dayCell.classList.add('selected');
     }
 
+    const countLabels = [];
+    if (counts.events > 0) {
+      countLabels.push(`<div class="event-count">${counts.events} event${counts.events > 1 ? 's' : ''}</div>`);
+    }
+    if (counts.busy > 0) {
+      countLabels.push(`<div class="busy-count">${counts.busy} busy</div>`);
+    }
+
     dayCell.innerHTML = `
       <div class="date-number">${day}</div>
-      ${getDayEvents(dateString).length ? `<div class="event-count">${getDayEvents(dateString).length} event${getDayEvents(dateString).length > 1 ? 's' : ''}</div>` : ''}
+      ${countLabels.join('')}
     `;
 
     dayCell.addEventListener('click', () => {
