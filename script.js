@@ -4,8 +4,11 @@ const selectedDateLabel = document.getElementById('selectedDateLabel');
 const eventDateHeading = document.getElementById('eventDateHeading');
 const eventList = document.getElementById('eventList');
 const eventForm = document.getElementById('eventForm');
+const eventTypeSelect = document.getElementById('eventType');
 const eventDateInput = document.getElementById('eventDate');
-const eventTimeInput = document.getElementById('eventTime');
+const eventEndDateInput = document.getElementById('eventEndDate');
+const eventStartTimeInput = document.getElementById('eventStartTime');
+const eventEndTimeInput = document.getElementById('eventEndTime');
 const eventTitleInput = document.getElementById('eventTitle');
 const eventNotesInput = document.getElementById('eventNotes');
 const clearFormBtn = document.getElementById('clearFormBtn');
@@ -87,6 +90,21 @@ function renderCalendar() {
   }
 }
 
+function getEventTimeLabel(event) {
+  if (event.type === 'busy') {
+    if (event.timeStart || event.timeEnd) {
+      return `${event.timeStart || 'Start'} — ${event.timeEnd || 'End'}`;
+    }
+    return 'Busy all day';
+  }
+
+  if (event.timeStart) {
+    return event.timeEnd ? `${event.timeStart} — ${event.timeEnd}` : `${event.timeStart}`;
+  }
+
+  return 'All day';
+}
+
 function renderSelectedDay() {
   const dateString = formatDateString(selectedDate);
   selectedDateLabel.textContent = formatPrettyDate(selectedDate);
@@ -101,21 +119,32 @@ function renderSelectedDay() {
   }
 
   dayEvents
-    .sort((a, b) => (a.time || '').localeCompare(b.time || ''))
+    .sort((a, b) => (a.timeStart || '').localeCompare(b.timeStart || ''))
     .forEach((event) => {
       const card = document.createElement('article');
       card.className = 'event-card';
       card.innerHTML = `
         <strong>${event.title}</strong>
-        <time>${event.time ? event.time : 'All day'}</time>
+        <span class="event-tag">${event.type === 'busy' ? 'Busy range' : 'Event'}</span>
+        <time>${getEventTimeLabel(event)}</time>
         <p>${event.notes ? event.notes : 'No additional notes.'}</p>
-        <button type="button" data-event-id="${event.id}">Delete</button>
+        <div class="card-actions">
+          <button type="button" data-event-id="${event.id}">Delete</button>
+          ${event.seriesId ? `<button type="button" class="delete-all" data-series-id="${event.seriesId}">Delete across days</button>` : ''}
+        </div>
       `;
 
-      const deleteBtn = card.querySelector('button');
+      const deleteBtn = card.querySelector('button[data-event-id]');
       deleteBtn.addEventListener('click', () => {
         deleteEvent(dateString, event.id);
       });
+
+      const deleteAllBtn = card.querySelector('button.delete-all');
+      if (deleteAllBtn) {
+        deleteAllBtn.addEventListener('click', () => {
+          deleteSeries(event.seriesId);
+        });
+      }
 
       eventList.appendChild(card);
     });
@@ -132,38 +161,85 @@ function deleteEvent(dateString, eventId) {
 }
 
 function populateFormDate() {
-  eventDateInput.value = formatDateString(selectedDate);
+  const formatted = formatDateString(selectedDate);
+  eventDateInput.value = formatted;
+  eventEndDateInput.value = '';
 }
 
 function clearForm() {
-  eventTimeInput.value = '';
+  eventTypeSelect.value = 'event';
+  eventDateInput.value = formatDateString(selectedDate);
+  eventEndDateInput.value = '';
+  eventStartTimeInput.value = '';
+  eventEndTimeInput.value = '';
   eventTitleInput.value = '';
   eventNotesInput.value = '';
+}
+
+function getDateRange(startString, endString) {
+  const result = [];
+  const start = new Date(startString);
+  const end = new Date(endString || startString);
+  let current = new Date(start);
+
+  while (current <= end) {
+    result.push(formatDateString(current));
+    current.setDate(current.getDate() + 1);
+  }
+
+  return result;
+}
+
+function deleteSeries(seriesId) {
+  if (!seriesId) return;
+
+  Object.keys(events).forEach((dateString) => {
+    events[dateString] = events[dateString].filter((item) => item.seriesId !== seriesId);
+    if (!events[dateString].length) {
+      delete events[dateString];
+    }
+  });
+
+  saveEvents();
+  renderCalendar();
+  renderSelectedDay();
 }
 
 function handleFormSubmit(event) {
   event.preventDefault();
 
-  const dateString = eventDateInput.value;
+  const startDate = eventDateInput.value;
+  const endDateValue = eventEndDateInput.value;
+  const dateRange = getDateRange(startDate, endDateValue || startDate);
   const title = eventTitleInput.value.trim();
-  const time = eventTimeInput.value;
   const notes = eventNotesInput.value.trim();
+  const type = eventTypeSelect.value;
+  const timeStart = eventStartTimeInput.value;
+  const timeEnd = eventEndTimeInput.value;
 
-  if (!dateString || !title) {
+  if (!startDate || !title) {
     return;
   }
 
-  const newEvent = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    title,
-    time,
-    notes,
-  };
+  const seriesId = dateRange.length > 1 ? `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` : null;
 
-  events[dateString] = [...getDayEvents(dateString), newEvent];
+  dateRange.forEach((dateString) => {
+    const newEvent = {
+      id: `${dateString}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      seriesId,
+      type,
+      title,
+      notes,
+      timeStart,
+      timeEnd,
+    };
+
+    events[dateString] = [...getDayEvents(dateString), newEvent];
+  });
+
   saveEvents();
 
-  selectedDate = new Date(dateString);
+  selectedDate = new Date(startDate);
   currentView = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() };
   renderCalendar();
   renderSelectedDay();
