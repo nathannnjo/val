@@ -176,10 +176,12 @@ function renderSelectedDay() {
         });
       }
 
-      const deleteBtn = card.querySelector('button[data-event-id]');
-      deleteBtn.addEventListener('click', () => {
-        deleteEvent(dateString, event.id);
-      });
+      const deleteBtn = card.querySelector('button:not(.edit-button)[data-event-id]');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+          deleteEvent(dateString, event.id);
+        });
+      }
 
       const deleteAllBtn = card.querySelector('button.delete-all');
       if (deleteAllBtn) {
