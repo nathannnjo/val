@@ -14,12 +14,15 @@ const eventNotesInput = document.getElementById('eventNotes');
 const clearFormBtn = document.getElementById('clearFormBtn');
 const prevMonthBtn = document.getElementById('prevMonthBtn');
 const nextMonthBtn = document.getElementById('nextMonthBtn');
+const eventFormHeading = document.querySelector('#eventForm h3');
+const eventSubmitButton = document.querySelector('#eventForm button[type="submit"]');
 
 const STORAGE_KEY = 'friendsCalendarEvents';
 
 let selectedDate = new Date();
 let currentView = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() };
 let events = loadEvents();
+let editingEvent = null;
 
 function loadEvents() {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -160,10 +163,18 @@ function renderSelectedDay() {
         <time>${getEventTimeLabel(event)}</time>
         <p>${event.notes ? event.notes : 'No additional notes.'}</p>
         <div class="card-actions">
+          <button type="button" class="edit-button" data-event-id="${event.id}">Edit</button>
           <button type="button" data-event-id="${event.id}">Delete</button>
           ${event.seriesId ? `<button type="button" class="delete-all" data-series-id="${event.seriesId}">Delete across days</button>` : ''}
         </div>
       `;
+
+      const editBtn = card.querySelector('button.edit-button');
+      if (editBtn) {
+        editBtn.addEventListener('click', () => {
+          startEditingEvent(dateString, event);
+        });
+      }
 
       const deleteBtn = card.querySelector('button[data-event-id]');
       deleteBtn.addEventListener('click', () => {
@@ -179,6 +190,21 @@ function renderSelectedDay() {
 
       eventList.appendChild(card);
     });
+}
+
+function startEditingEvent(dateString, event) {
+  editingEvent = { dateString, id: event.id, originalSeriesId: event.seriesId || null };
+  eventFormHeading.textContent = 'Edit Event';
+  eventSubmitButton.textContent = 'Update event';
+  clearFormBtn.textContent = 'Cancel';
+
+  eventTypeSelect.value = event.type;
+  eventDateInput.value = dateString;
+  eventEndDateInput.value = dateString;
+  eventStartTimeInput.value = event.timeStart || '';
+  eventEndTimeInput.value = event.timeEnd || '';
+  eventTitleInput.value = event.title || '';
+  eventNotesInput.value = event.notes || '';
 }
 
 function deleteEvent(dateString, eventId) {
@@ -198,6 +224,10 @@ function populateFormDate() {
 }
 
 function clearForm() {
+  editingEvent = null;
+  eventFormHeading.textContent = 'Add / Update Event';
+  eventSubmitButton.textContent = 'Save event';
+  clearFormBtn.textContent = 'Clear';
   eventTypeSelect.value = 'event';
   eventDateInput.value = formatDateString(selectedDate);
   eventEndDateInput.value = '';
@@ -252,7 +282,17 @@ function handleFormSubmit(event) {
     return;
   }
 
-  const seriesId = dateRange.length > 1 ? `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` : null;
+  if (editingEvent) {
+    const originalDate = editingEvent.dateString;
+    events[originalDate] = getDayEvents(originalDate).filter((item) => item.id !== editingEvent.id);
+    if (!events[originalDate].length) {
+      delete events[originalDate];
+    }
+  }
+
+  const seriesId = dateRange.length > 1
+    ? editingEvent?.originalSeriesId || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    : editingEvent?.originalSeriesId || null;
 
   dateRange.forEach((dateString) => {
     const newEvent = {
