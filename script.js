@@ -81,22 +81,15 @@ async function initializeFirebase() {
 }
 
 async function saveEvents() {
-  if (!firebaseReady) {
-    console.error('❌ Firebase not ready. Waiting...');
-    // Try to wait a bit longer
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (!firebaseReady) {
-      console.error('❌ Firebase still not ready. Check firebase-config.js');
-      alert('Calendar not connected to Firebase. Check console (F12) for errors.');
-      return;
-    }
+  if (!window.database) {
+    console.error('❌ Firebase not ready. Check firebase-config.js');
+    alert('Calendar not connected to Firebase. Check console (F12) for errors.');
+    return;
   }
   
   try {
-    const database = window.database;
     console.log('💾 Saving events to Firebase...', events);
-    await database.ref(DB_PATH).set(events);
+    await window.database.ref(DB_PATH).set(events);
     console.log('✅ Events saved successfully');
   } catch (error) {
     console.error('❌ Error saving events:', error);
