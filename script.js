@@ -27,44 +27,75 @@ let firebaseReady = false;
 
 // Wait for Firebase to be ready
 function waitForFirebase() {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    let attempts = 0;
+    const maxAttempts = 50; // 5 second timeout (50 * 100ms)
+    
     const checkFirebase = setInterval(() => {
+      attempts++;
       if (typeof database !== 'undefined') {
         clearInterval(checkFirebase);
+        console.log('✅ Firebase database reference is ready');
         firebaseReady = true;
         resolve();
+        return;
+      }
+      
+      if (attempts >= maxAttempts) {
+        clearInterval(checkFirebase);
+        console.error('❌ Firebase failed to initialize. Check firebase-config.js and browser console for errors.');
+        reject(new Error('Firebase initialization timeout'));
       }
     }, 100);
   });
 }
 
 async function initializeFirebase() {
-  await waitForFirebase();
-  
-  // Load events and set up real-time listener
-  const eventsRef = database.ref(DB_PATH);
-  
-  eventsRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    events = data || {};
+  try {
+    await waitForFirebase();
     
-    // Refresh the calendar view
-    renderCalendar();
-    renderSelectedDay();
-  });
+    // Load events and set up real-time listener
+    const eventsRef = database.ref(DB_PATH);
+    
+    eventsRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      events = data || {};
+      console.log('📝 Events loaded from Firebase:', events);
+      
+      // Refresh the calendar view
+      renderCalendar();
+      renderSelectedDay();
+    });
+    
+    eventsRef.on('error', (error) => {
+      console.error('❌ Firebase error:', error);
+    });
+  } catch (error) {
+    console.error('❌ Firebase initialization failed:', error);
+    firebaseReady = false;
+  }
 }
 
 async function saveEvents() {
   if (!firebaseReady) {
-    console.warn('Firebase not ready yet');
-    return;
+    console.error('❌ Firebase not ready. Waiting...');
+    // Try to wait a bit longer
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (!firebaseReady) {
+      console.error('❌ Firebase still not ready. Check firebase-config.js');
+      alert('Calendar not connected to Firebase. Check console (F12) for errors.');
+      return;
+    }
   }
   
   try {
+    console.log('💾 Saving events to Firebase...', events);
     await database.ref(DB_PATH).set(events);
+    console.log('✅ Events saved successfully');
   } catch (error) {
-    console.error('Error saving events:', error);
-    alert('Failed to save event. Check console for details.');
+    console.error('❌ Error saving events:', error);
+    alert('Failed to save event:\n' + error.message + '\n\nCheck console (F12) for details.');
   }
 }
 
@@ -305,6 +336,7 @@ function deleteSeries(seriesId) {
 
 function handleFormSubmit(event) {
   event.preventDefault();
+  console.log('📋 Form submitted');
 
   const startDate = eventDateInput.value;
   const endDateValue = eventEndDateInput.value;
@@ -316,6 +348,7 @@ function handleFormSubmit(event) {
   const timeEnd = eventEndTimeInput.value;
 
   if (!startDate || !title) {
+    console.warn('⚠️ Missing required fields');
     return;
   }
 
@@ -345,6 +378,7 @@ function handleFormSubmit(event) {
     events[dateString] = [...getDayEvents(dateString), newEvent];
   });
 
+  console.log('📤 Calling saveEvents()');
   saveEvents();
 
   selectedDate = new Date(startDate);

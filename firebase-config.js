@@ -15,6 +15,17 @@ const firebaseConfig = {
   appId: "YOUR_APP_ID"
 };
 
+// Check if config has been filled in
+if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+  console.error('❌ Firebase config not set up! Replace the placeholder values in firebase-config.js');
+  console.error('See FIREBASE_SETUP.md for instructions');
+}
+
 // Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database(app);
+try {
+  const app = firebase.initializeApp(firebaseConfig);
+  const database = firebase.database(app);
+  console.log('✅ Firebase initialized successfully');
+} catch (error) {
+  console.error('❌ Firebase initialization error:', error);
+}
