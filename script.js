@@ -17,20 +17,55 @@ const nextMonthBtn = document.getElementById('nextMonthBtn');
 const eventFormHeading = document.querySelector('#eventForm h3');
 const eventSubmitButton = document.querySelector('#eventForm button[type="submit"]');
 
-const STORAGE_KEY = 'friendsCalendarEvents';
+const DB_PATH = 'calendar/events';
 
 let selectedDate = new Date();
 let currentView = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() };
-let events = loadEvents();
+let events = {};
 let editingEvent = null;
+let firebaseReady = false;
 
-function loadEvents() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  return saved ? JSON.parse(saved) : {};
+// Wait for Firebase to be ready
+function waitForFirebase() {
+  return new Promise((resolve) => {
+    const checkFirebase = setInterval(() => {
+      if (typeof database !== 'undefined') {
+        clearInterval(checkFirebase);
+        firebaseReady = true;
+        resolve();
+      }
+    }, 100);
+  });
 }
 
-function saveEvents() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+async function initializeFirebase() {
+  await waitForFirebase();
+  
+  // Load events and set up real-time listener
+  const eventsRef = database.ref(DB_PATH);
+  
+  eventsRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    events = data || {};
+    
+    // Refresh the calendar view
+    renderCalendar();
+    renderSelectedDay();
+  });
+}
+
+async function saveEvents() {
+  if (!firebaseReady) {
+    console.warn('Firebase not ready yet');
+    return;
+  }
+  
+  try {
+    await database.ref(DB_PATH).set(events);
+  } catch (error) {
+    console.error('Error saving events:', error);
+    alert('Failed to save event. Check console for details.');
+  }
 }
 
 function formatDateString(date) {
@@ -345,6 +380,10 @@ function initialize() {
   populateFormDate();
   renderCalendar();
   renderSelectedDay();
+  
+  // Initialize Firebase connection
+  initializeFirebase();
 }
 
+// Start the app
 initialize();

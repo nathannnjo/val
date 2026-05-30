@@ -2,13 +2,21 @@
 
 ## Friends Calendar App
 
+A shared, real-time calendar where events sync instantly across all users.
+
 Open `index.html` in your browser to use the calendar.
 
-Features:
-- Monthly calendar view
-- Click a day to see and add events
-- Events saved automatically in browser storage
-- Delete events when plans change
+### Features
+- 📅 Monthly calendar view
+- ➕ Click a day to see and add events
+- 🌐 **Real-time sync** - events update instantly for everyone (Firebase)
+- ⏰ Support for all-day events and busy times
+- 📝 Add notes to events
+- 🗑️ Delete individual events or entire event series
+
+### Setup
+
+**First time setup required!** See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) to connect your calendar to Firebase for real-time sharing.
 
 ### Run locally
 
