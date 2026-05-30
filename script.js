@@ -24,6 +24,7 @@ let currentView = { year: selectedDate.getFullYear(), month: selectedDate.getMon
 let events = {};
 let editingEvent = null;
 let firebaseReady = false;
+let lastSyncedEvents = {}; // Track what we've synced to prevent listener overwriting local changes
 
 // Wait for Firebase to be ready
 function waitForFirebase() {
@@ -60,7 +61,8 @@ async function initializeFirebase() {
     eventsRef.on('value', (snapshot) => {
       const data = snapshot.val();
       events = data || {};
-      console.log('📝 Events loaded from Firebase:', events);
+      lastSyncedEvents = JSON.parse(JSON.stringify(events)); // Deep copy
+      console.log('📝 Events synced from Firebase:', events);
       
       // Refresh the calendar view
       renderCalendar();
@@ -68,7 +70,7 @@ async function initializeFirebase() {
     });
     
     eventsRef.on('error', (error) => {
-      console.error('❌ Firebase error:', error);
+      console.error('❌ Firebase listener error:', error);
     });
   } catch (error) {
     console.error('❌ Firebase initialization failed:', error);
@@ -334,7 +336,7 @@ function deleteSeries(seriesId) {
   renderSelectedDay();
 }
 
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
   event.preventDefault();
   console.log('📋 Form submitted');
 
@@ -379,7 +381,8 @@ function handleFormSubmit(event) {
   });
 
   console.log('📤 Calling saveEvents()');
-  saveEvents();
+  // IMPORTANT: Wait for save to complete before updating UI
+  await saveEvents();
 
   selectedDate = new Date(startDate);
   currentView = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() };
