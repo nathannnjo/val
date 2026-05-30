@@ -7,26 +7,32 @@
 // 5. Replace the config below
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyD9fC1hha13zCWm7zkCV3HPQAnZ4EF_x3c",
+  authDomain: "hop-on-val-6fcf7.firebaseapp.com",
+  databaseURL: "https://hop-on-val-6fcf7-default-rtdb.firebaseio.com",
+  projectId: "hop-on-val-6fcf7",
+  storageBucket: "hop-on-val-6fcf7.firebasestorage.app",
+  messagingSenderId: "716426590301",
+  appId: "1:716426590301:web:b73a72a54944bfe457f5b4",
+  measurementId: "G-7K95WBH6S4"
 };
 
-// Check if config has been filled in
-if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-  console.error('❌ Firebase config not set up! Replace the placeholder values in firebase-config.js');
-  console.error('See FIREBASE_SETUP.md for instructions');
+// Initialize Firebase when it's ready
+function initializeFirebaseConfig() {
+  if (typeof firebase === 'undefined') {
+    console.log('⏳ Waiting for Firebase SDK to load...');
+    setTimeout(initializeFirebaseConfig, 100);
+    return;
+  }
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    window.database = database; // Make it globally accessible
+    console.log('✅ Firebase initialized successfully');
+  } catch (error) {
+    console.error('❌ Firebase initialization error:', error);
+  }
 }
 
-// Initialize Firebase
-try {
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-  window.database = database; // Make it globally accessible
-  console.log('✅ Firebase initialized successfully');
-} catch (error) {
-  console.error('❌ Firebase initialization error:', error);
-}
+initializeFirebaseConfig();
