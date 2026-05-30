@@ -30,6 +30,11 @@ function initializeFirebaseConfig() {
     const database = firebase.database();
     window.database = database; // Make it globally accessible
     console.log('✅ Firebase initialized successfully');
+
+    // Tell script.js Firebase is ready — avoids race condition
+    if (typeof initializeFirebase === 'function') {
+      initializeFirebase();
+    }
   } catch (error) {
     console.error('❌ Firebase initialization error:', error);
   }

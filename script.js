@@ -421,8 +421,7 @@ function initialize() {
   renderCalendar();
   renderSelectedDay();
   
-  // Initialize Firebase connection
-  initializeFirebase();
+  // Firebase will be initialized by firebase-config.js once SDK is ready
 }
 
 // Start the app
