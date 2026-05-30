@@ -59,20 +59,21 @@ async function initializeFirebase() {
     // Load events and set up real-time listener
     const eventsRef = database.ref(DB_PATH);
     
-    eventsRef.on('value', (snapshot) => {
-      const data = snapshot.val();
-      events = data || {};
-      lastSyncedEvents = JSON.parse(JSON.stringify(events)); // Deep copy
-      console.log('📝 Events synced from Firebase:', events);
-      
-      // Refresh the calendar view
-      renderCalendar();
-      renderSelectedDay();
-    });
-    
-    eventsRef.on('error', (error) => {
-      console.error('❌ Firebase listener error:', error);
-    });
+    eventsRef.on('value', 
+      (snapshot) => {
+        const data = snapshot.val();
+        events = data || {};
+        lastSyncedEvents = JSON.parse(JSON.stringify(events)); // Deep copy
+        console.log('📝 Events synced from Firebase:', events);
+        
+        // Refresh the calendar view
+        renderCalendar();
+        renderSelectedDay();
+      },
+      (error) => {
+        console.error('❌ Firebase listener error:', error);
+      }
+    );
   } catch (error) {
     console.error('❌ Firebase initialization failed:', error);
     firebaseReady = false;
