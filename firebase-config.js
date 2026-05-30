@@ -23,8 +23,9 @@ if (firebaseConfig.apiKey === "YOUR_API_KEY") {
 
 // Initialize Firebase
 try {
-  const app = firebase.initializeApp(firebaseConfig);
-  const database = firebase.database(app);
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+  window.database = database; // Make it globally accessible
   console.log('✅ Firebase initialized successfully');
 } catch (error) {
   console.error('❌ Firebase initialization error:', error);

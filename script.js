@@ -34,7 +34,7 @@ function waitForFirebase() {
     
     const checkFirebase = setInterval(() => {
       attempts++;
-      if (typeof database !== 'undefined') {
+      if (typeof window.database !== 'undefined' && window.database !== null) {
         clearInterval(checkFirebase);
         console.log('✅ Firebase database reference is ready');
         firebaseReady = true;
@@ -54,6 +54,7 @@ function waitForFirebase() {
 async function initializeFirebase() {
   try {
     await waitForFirebase();
+    const database = window.database;
     
     // Load events and set up real-time listener
     const eventsRef = database.ref(DB_PATH);
@@ -92,6 +93,7 @@ async function saveEvents() {
   }
   
   try {
+    const database = window.database;
     console.log('💾 Saving events to Firebase...', events);
     await database.ref(DB_PATH).set(events);
     console.log('✅ Events saved successfully');
